@@ -155,7 +155,7 @@ app.use(express.static(__dirname));
 const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-        user: "mlbbstore@gmail.com",
+        user: "jeramz1430@gmail.com",
         pass: process.env.EMAIL_PASS
     }
 });
