@@ -1,3 +1,10 @@
+process.on("uncaughtException", err => {
+    console.error("UNCAUGHT ERROR:", err);
+});
+
+process.on("unhandledRejection", err => {
+    console.error("UNHANDLED PROMISE:", err);
+});
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
