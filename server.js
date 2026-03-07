@@ -8,7 +8,8 @@ const nodemailer = require('nodemailer');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// MySQL Connection Configuration
+/* ---------------- MYSQL CONFIG ---------------- */
+
 const dbConfig = {
     host: process.env.MYSQLHOST,
     user: process.env.MYSQLUSER,
@@ -22,26 +23,33 @@ const dbConfig = {
 
 let pool;
 
-// Create connection pool
+/* ---------------- INIT DATABASE ---------------- */
+
 async function initDB() {
     try {
+
         pool = mysql.createPool(dbConfig);
-        
-        // Make pool available to controllers via app.locals
+
         app.locals.pool = pool;
-        
-        console.log('Connected to MySQL database');
-        
-        // Create tables if they don't exist
+
+        const conn = await pool.getConnection();
+        console.log("✅ Connected to MySQL database");
+        conn.release();
+
         await createTables();
+
     } catch (err) {
-        console.error('Error connecting to MySQL:', err);
+
+        console.error("❌ MySQL connection error:", err);
         process.exit(1);
+
     }
 }
 
-// Create required tables
+/* ---------------- CREATE TABLES ---------------- */
+
 async function createTables() {
+
     const createProductsTable = `
         CREATE TABLE IF NOT EXISTS products (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -55,7 +63,7 @@ async function createTables() {
             win_rate INT DEFAULT 0
         )
     `;
-    
+
     const createOrdersTable = `
         CREATE TABLE IF NOT EXISTS orders (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -72,165 +80,151 @@ async function createTables() {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     `;
-    
+
     const createSettingsTable = `
         CREATE TABLE IF NOT EXISTS settings (
             id INT AUTO_INCREMENT PRIMARY KEY,
-            setting_key VARCHAR(255) NOT NULL UNIQUE,
+            setting_key VARCHAR(255) UNIQUE,
             setting_value TEXT,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         )
     `;
-    
+
     await pool.execute(createProductsTable);
     await pool.execute(createOrdersTable);
     await pool.execute(createSettingsTable);
-    
-    // Migration: Add new columns if they don't exist (for existing databases)
-    try {
-        await pool.execute('ALTER TABLE products ADD COLUMN heroes INT DEFAULT 0');
-    } catch (e) {
-        // Column already exists, ignore
-    }
-    try {
-        await pool.execute('ALTER TABLE products ADD COLUMN skins INT DEFAULT 0');
-    } catch (e) {
-        // Column already exists, ignore
-    }
-    try {
-        await pool.execute('ALTER TABLE products ADD COLUMN win_rate INT DEFAULT 0');
-    } catch (e) {
-        // Column already exists, ignore
-    }
-    
-    // Migration: Add player_id to orders table if it doesn't exist (for existing databases)
-    try {
-        await pool.execute('ALTER TABLE orders ADD COLUMN player_id VARCHAR(100) AFTER customer_contact');
-    } catch (e) {
-        // Column already exists, ignore
-    }
-    
-    // Migration: Add payment_method to orders table if it doesn't exist (for existing databases)
-    try {
-        await pool.execute('ALTER TABLE orders ADD COLUMN payment_method VARCHAR(50) AFTER player_id');
-    } catch (e) {
-        // Column already exists, ignore
-    }
-    
-// Migration: Add notes to orders table if it doesn't exist (for existing databases)
-    try {
-        await pool.execute('ALTER TABLE orders ADD COLUMN notes TEXT AFTER payment_method');
-    } catch (e) {
-        // Column already exists, ignore
-    }
-    
-    // Migration: Add items to orders table if it doesn't exist (for existing databases)
-    try {
-        await pool.execute('ALTER TABLE orders ADD COLUMN items JSON NOT NULL AFTER notes');
-    } catch (e) {
-        // Column already exists, ignore
-    }
-    
-    // Migration: Add subtotal to orders table if it doesn't exist (for existing databases)
-    try {
-        await pool.execute('ALTER TABLE orders ADD COLUMN subtotal DECIMAL(10,2) DEFAULT 0 AFTER items');
-    } catch (e) {
-        // Column already exists, ignore
-    }
-    
-    // Migration: Add processing_fee to orders table if it doesn't exist (for existing databases)
-    try {
-        await pool.execute('ALTER TABLE orders ADD COLUMN processing_fee DECIMAL(10,2) DEFAULT 0 AFTER subtotal');
-    } catch (e) {
-        // Column already exists, ignore
-    }
-    
-    // Migration: Add total to orders table if it doesn't exist (for existing databases)
-    try {
-        await pool.execute('ALTER TABLE orders ADD COLUMN total DECIMAL(10,2) NOT NULL AFTER processing_fee');
-    } catch (e) {
-        // Column already exists, ignore
-    }
-    
-    // Migration: Add status to orders table if it doesn't exist (for existing databases)
-    try {
-        await pool.execute('ALTER TABLE orders ADD COLUMN status VARCHAR(50) DEFAULT "pending" AFTER total');
-    } catch (e) {
-        // Column already exists, ignore
-    }
-    
-    console.log('Tables created successfully');
-    
-    // Seed sample data if database is empty
+
+    console.log("✅ Tables ready");
+
     await seedSampleData();
 }
 
-// Seed sample products
+/* ---------------- SEED DATA ---------------- */
+
 async function seedSampleData() {
+
     const [rows] = await pool.execute('SELECT COUNT(*) as count FROM products');
-    const count = rows[0].count;
-    
-    if (count === 0) {
-        console.log('Seeding sample products...');
-        const sampleProducts = [
-            { name: 'Exclusive Diamond Account', price: 150, rank: 'exclusive', heroes: 80, skins: 45, win_rate: 72 },
-            { name: 'Exclusive Elite Account', price: 120, rank: 'exclusive', heroes: 65, skins: 35, win_rate: 68 },
-            { name: 'Premium Glory Account', price: 85, rank: 'premium', heroes: 55, skins: 28, win_rate: 62 },
-            { name: 'Premium Top Player', price: 65, rank: 'premium', heroes: 50, skins: 22, win_rate: 58 },
-            { name: 'Collector Edition Account', price: 45, rank: 'collector', heroes: 40, skins: 18, win_rate: 55 },
-            { name: 'Collector Account', price: 35, rank: 'collector', heroes: 35, skins: 15, win_rate: 52 },
-            { name: 'Basic Starter Account', price: 15, rank: 'basic', heroes: 25, skins: 8, win_rate: 48 },
-            { name: 'Basic Account', price: 10, rank: 'basic', heroes: 20, skins: 5, win_rate: 45 },
-            { name: 'Exclusive Mythic Account', price: 200, rank: 'exclusive', heroes: 90, skins: 60, win_rate: 75 },
-            { name: 'Premium Legend Account', price: 55, rank: 'premium', heroes: 45, skins: 20, win_rate: 56 },
-            { name: 'Collector Pro Account', price: 40, rank: 'collector', heroes: 38, skins: 16, win_rate: 54 },
-            { name: 'Basic Elite Account', price: 20, rank: 'basic', heroes: 30, skins: 10, win_rate: 50 }
+
+    if (rows[0].count === 0) {
+
+        console.log("🌱 Seeding sample products");
+
+        const products = [
+            { name:'Exclusive Diamond Account',price:150,rank:'exclusive',heroes:80,skins:45,win_rate:72 },
+            { name:'Exclusive Elite Account',price:120,rank:'exclusive',heroes:65,skins:35,win_rate:68 },
+            { name:'Premium Glory Account',price:85,rank:'premium',heroes:55,skins:28,win_rate:62 },
+            { name:'Premium Top Player',price:65,rank:'premium',heroes:50,skins:22,win_rate:58 },
+            { name:'Collector Edition Account',price:45,rank:'collector',heroes:40,skins:18,win_rate:55 },
+            { name:'Collector Account',price:35,rank:'collector',heroes:35,skins:15,win_rate:52 },
+            { name:'Basic Starter Account',price:15,rank:'basic',heroes:25,skins:8,win_rate:48 },
+            { name:'Basic Account',price:10,rank:'basic',heroes:20,skins:5,win_rate:45 }
         ];
-        
-        for (const product of sampleProducts) {
+
+        for (const p of products) {
+
             await pool.execute(
-                'INSERT INTO products (name, price, `rank`, heroes, skins, win_rate) VALUES (?, ?, ?, ?, ?, ?)',
-                [product.name, product.price, product.rank, product.heroes, product.skins, product.win_rate]
+                'INSERT INTO products (name,price,`rank`,heroes,skins,win_rate) VALUES (?,?,?,?,?,?)',
+                [p.name,p.price,p.rank,p.heroes,p.skins,p.win_rate]
             );
+
         }
-        console.log('Sample products seeded successfully!');
+
+        console.log("✅ Sample products added");
+
     }
+
 }
 
-// Middleware
+/* ---------------- MIDDLEWARE ---------------- */
+
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static(__dirname)); // Serve static files
+app.use(express.static(__dirname));
 
-// Import routes
-const apiRoutes = require('./routes');
+/* ---------------- EMAIL SYSTEM ---------------- */
 
-// Mount API routes at /api
-app.use('/api', apiRoutes);
-
-// Serve the main HTML files - Clean URLs (no .html extension)
-app.get('/store', (req, res) => {
-    res.sendFile(path.join(__dirname, 'mlbb.html'));
+const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+        user: "mlbbstore@gmail.com",
+        pass: process.env.GMAIL_APP_PASSWORD
+    }
 });
 
-// Redirect root to store
-app.get('/', (req, res) => {
-    res.redirect('/store');
-});
+async function sendAccountEmail(toEmail, accountEmail, accountPassword){
 
-app.get('/owner', (req, res) => {
-    res.sendFile(path.join(__dirname, 'owner.html'));
-});
-
-// Initialize database and start server
-initDB().then(() => {
-    app.listen(PORT, () => {
-        console.log(`MLBB Store Server running on http://localhost:${PORT}`);
-        console.log(`Customer Store: http://localhost:${PORT}/store`);
-        console.log(`Owner Dashboard: http://localhost:${PORT}/owner`);
+    await transporter.sendMail({
+        from:'"MLBB Store" <mlbbstore@gmail.com>',
+        to:toEmail,
+        subject:"Your MLBB Account Delivery",
+        html:`
+        <h2>Your MLBB Account</h2>
+        <p><b>Email:</b> ${accountEmail}</p>
+        <p><b>Password:</b> ${accountPassword}</p>
+        <p>Please change the password immediately.</p>
+        `
     });
-}).catch(err => {
-    console.error('Failed to start server:', err);
-    process.exit(1);
+
+}
+
+/* TEST EMAIL */
+
+app.get("/test-email", async(req,res)=>{
+
+    try{
+
+        await sendAccountEmail(
+            "YOUR_EMAIL@gmail.com",
+            "testmoonton@gmail.com",
+            "password123"
+        );
+
+        res.send("✅ Email sent");
+
+    }catch(err){
+
+        console.error(err);
+        res.send("❌ Email failed");
+
+    }
+
 });
 
+/* ---------------- API ROUTES ---------------- */
+
+const apiRoutes = require("./routes");
+
+app.use("/api", apiRoutes);
+
+/* ---------------- FRONTEND ROUTES ---------------- */
+
+app.get("/store",(req,res)=>{
+    res.sendFile(path.join(__dirname,"mlbb.html"));
+});
+
+app.get("/owner",(req,res)=>{
+    res.sendFile(path.join(__dirname,"owner.html"));
+});
+
+app.get("/",(req,res)=>{
+    res.redirect("/store");
+});
+
+/* ---------------- START SERVER ---------------- */
+
+initDB().then(()=>{
+
+    app.listen(PORT,()=>{
+
+        console.log(`🚀 Server running on port ${PORT}`);
+        console.log(`Store → /store`);
+        console.log(`Owner → /owner`);
+
+    });
+
+}).catch(err=>{
+
+    console.error("Server start failed:",err);
+    process.exit(1);
+
+});
