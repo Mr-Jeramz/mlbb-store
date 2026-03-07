@@ -5,12 +5,13 @@ process.on("uncaughtException", err => {
 process.on("unhandledRejection", err => {
     console.error("UNHANDLED PROMISE:", err);
 });
-const express = require('express');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const path = require('path');
-const mysql = require('mysql2/promise');
-const nodemailer = require('nodemailer');
+
+const express = require("express");
+const cors = require("cors");
+const bodyParser = require("body-parser");
+const path = require("path");
+const mysql = require("mysql2/promise");
+const nodemailer = require("nodemailer");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -33,24 +34,25 @@ let pool;
 /* ---------------- INIT DATABASE ---------------- */
 
 async function initDB() {
+
     try {
 
         pool = mysql.createPool(dbConfig);
 
-        app.locals.pool = pool;
-
         const conn = await pool.getConnection();
         console.log("✅ Connected to MySQL database");
         conn.release();
+
+        app.locals.pool = pool;
 
         await createTables();
 
     } catch (err) {
 
         console.error("❌ MySQL connection error:", err);
-        process.exit(1);
 
     }
+
 }
 
 /* ---------------- CREATE TABLES ---------------- */
@@ -110,27 +112,27 @@ async function createTables() {
 
 async function seedSampleData() {
 
-    const [rows] = await pool.execute('SELECT COUNT(*) as count FROM products');
+    const [rows] = await pool.execute("SELECT COUNT(*) as count FROM products");
 
     if (rows[0].count === 0) {
 
         console.log("🌱 Seeding sample products");
 
         const products = [
-            { name:'Exclusive Diamond Account',price:150,rank:'exclusive',heroes:80,skins:45,win_rate:72 },
-            { name:'Exclusive Elite Account',price:120,rank:'exclusive',heroes:65,skins:35,win_rate:68 },
-            { name:'Premium Glory Account',price:85,rank:'premium',heroes:55,skins:28,win_rate:62 },
-            { name:'Premium Top Player',price:65,rank:'premium',heroes:50,skins:22,win_rate:58 },
-            { name:'Collector Edition Account',price:45,rank:'collector',heroes:40,skins:18,win_rate:55 },
-            { name:'Collector Account',price:35,rank:'collector',heroes:35,skins:15,win_rate:52 },
-            { name:'Basic Starter Account',price:15,rank:'basic',heroes:25,skins:8,win_rate:48 },
-            { name:'Basic Account',price:10,rank:'basic',heroes:20,skins:5,win_rate:45 }
+            { name:"Exclusive Diamond Account",price:150,rank:"exclusive",heroes:80,skins:45,win_rate:72 },
+            { name:"Exclusive Elite Account",price:120,rank:"exclusive",heroes:65,skins:35,win_rate:68 },
+            { name:"Premium Glory Account",price:85,rank:"premium",heroes:55,skins:28,win_rate:62 },
+            { name:"Premium Top Player",price:65,rank:"premium",heroes:50,skins:22,win_rate:58 },
+            { name:"Collector Edition Account",price:45,rank:"collector",heroes:40,skins:18,win_rate:55 },
+            { name:"Collector Account",price:35,rank:"collector",heroes:35,skins:15,win_rate:52 },
+            { name:"Basic Starter Account",price:15,rank:"basic",heroes:25,skins:8,win_rate:48 },
+            { name:"Basic Account",price:10,rank:"basic",heroes:20,skins:5,win_rate:45 }
         ];
 
         for (const p of products) {
 
             await pool.execute(
-                'INSERT INTO products (name,price,`rank`,heroes,skins,win_rate) VALUES (?,?,?,?,?,?)',
+                "INSERT INTO products (name,price,`rank`,heroes,skins,win_rate) VALUES (?,?,?,?,?,?)",
                 [p.name,p.price,p.rank,p.heroes,p.skins,p.win_rate]
             );
 
@@ -174,7 +176,7 @@ async function sendAccountEmail(toEmail, accountEmail, accountPassword){
 
 }
 
-/* TEST EMAIL */
+/* ---------------- TEST EMAIL ---------------- */
 
 app.get("/test-email", async(req,res)=>{
 
@@ -201,6 +203,7 @@ app.get("/test-email", async(req,res)=>{
 
 const routes = require("./routes");
 app.use("/api", routes);
+
 /* ---------------- FRONTEND ROUTES ---------------- */
 
 app.get("/store",(req,res)=>{
@@ -217,19 +220,12 @@ app.get("/",(req,res)=>{
 
 /* ---------------- START SERVER ---------------- */
 
-initDB().then(()=>{
+app.listen(PORT, async () => {
 
-    app.listen(PORT,()=>{
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`Store → /store`);
+    console.log(`Owner → /owner`);
 
-        console.log(`🚀 Server running on port ${PORT}`);
-        console.log(`Store → /store`);
-        console.log(`Owner → /owner`);
-
-    });
-
-}).catch(err=>{
-
-    console.error("Server start failed:",err);
-    process.exit(1);
+    await initDB();
 
 });
