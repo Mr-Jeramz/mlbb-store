@@ -153,7 +153,9 @@ app.use(express.static(__dirname));
 /* ---------------- EMAIL SYSTEM ---------------- */
 
 const transporter = nodemailer.createTransport({
-    service: "gmail",
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
     auth: {
         user: "jeramz1430@gmail.com",
         pass: process.env.EMAIL_PASS
