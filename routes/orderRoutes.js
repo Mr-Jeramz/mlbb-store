@@ -5,8 +5,19 @@ const router = express.Router();
 
 const orderController = require("../controllers/orderController");
 
-router.get("/", orderController.getOrders);
+// Get all orders
+router.get("/", orderController.getAllOrders);
+
+// Get single order
+router.get("/:id", orderController.getOrderById);
+
+// Create new order
 router.post("/", orderController.createOrder);
-router.put("/:id", orderController.updateOrderStatus);
+
+// Update order status
+router.put("/:id", orderController.updateOrder);
+
+// Delete order
+router.delete("/:id", orderController.deleteOrder);
 
 module.exports = router;
