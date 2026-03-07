@@ -10,10 +10,14 @@ const PORT = process.env.PORT || 3000;
 
 // MySQL Connection Configuration
 const dbConfig = {
-    host: 'localhost',
-    user: 'root',
-    password: '54321',
-    database: 'mlbb_store'
+    host: process.env.MYSQLHOST,
+    user: process.env.MYSQLUSER,
+    password: process.env.MYSQLPASSWORD,
+    database: process.env.MYSQLDATABASE,
+    port: process.env.MYSQLPORT,
+    ssl: {
+        rejectUnauthorized: false
+    }
 };
 
 let pool;
