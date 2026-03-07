@@ -192,11 +192,10 @@ app.get("/test-email", async(req,res)=>{
 
 /* ---------------- API ROUTES ---------------- */
 
-app.use("/api/products", require("./productRoutes"));
-app.use("/api/orders", require("./orderRoutes"));
-app.use("/api/stats", require("./statsRoutes"));
-app.use("/api/settings", require("./settingsRoutes"));
-
+app.use("/api/products", require("./routes/productRoutes"));
+app.use("/api/orders", require("./routes/orderRoutes"));
+app.use("/api/stats", require("./routes/statsRoutes"));
+app.use("/api/settings", require("./routes/settingsRoutes"));
 /* ---------------- FRONTEND ROUTES ---------------- */
 
 app.get("/store",(req,res)=>{
