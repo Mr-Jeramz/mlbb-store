@@ -1,14 +1,11 @@
 // Settings Routes - Define all settings-related routes
 
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const settingsController = require('../controllers/settingsController');
 
-// GET /api/settings - Get all settings
-router.get('/', settingsController.getAllSettings);
+const settingsController = require("../controllers/settingsController");
 
-// PUT /api/settings - Update settings
-router.put('/', settingsController.updateSettings);
+router.get("/", settingsController.getSettings);
+router.put("/", settingsController.saveSettings);
 
 module.exports = router;
-
