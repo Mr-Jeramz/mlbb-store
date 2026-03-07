@@ -1,0 +1,18 @@
+{
+  "products": [
+    { "id": 1, "title": "Exclusive Diamond Account", "rank": "exclusive", "price": 150, "heroes": 80, "skins": 45, "winRate": 72, "image": null },
+    { "id": 2, "title": "Exclusive Elite Account", "rank": "exclusive", "price": 120, "heroes": 65, "skins": 35, "winRate": 68, "image": null },
+    { "id": 3, "title": "Premium Glory Account", "rank": "premium", "price": 85, "heroes": 55, "skins": 28, "winRate": 62, "image": null },
+    { "id": 4, "title": "Premium Top Player", "rank": "premium", "price": 65, "heroes": 50, "skins": 22, "winRate": 58, "image": null },
+    { "id": 5, "title": "Collector Edition Account", "rank": "collector", "price": 45, "heroes": 40, "skins": 18, "winRate": 55, "image": null },
+    { "id": 6, "title": "Collector Account", "rank": "collector", "price": 35, "heroes": 35, "skins": 15, "winRate": 52, "image": null },
+    { "id": 7, "title": "Basic Starter Account", "rank": "basic", "price": 15, "heroes": 25, "skins": 8, "winRate": 48, "image": null },
+    { "id": 8, "title": "Basic Account", "rank": "basic", "price": 10, "heroes": 20, "skins": 5, "winRate": 45, "image": null },
+    { "id": 9, "title": "Exclusive Mythic Account", "rank": "exclusive", "price": 200, "heroes": 90, "skins": 60, "winRate": 75, "image": null },
+    { "id": 10, "title": "Premium Legend Account", "rank": "premium", "price": 55, "heroes": 45, "skins": 20, "winRate": 56, "image": null },
+    { "id": 11, "title": "Collector Pro Account", "rank": "collector", "price": 40, "heroes": 38, "skins": 16, "winRate": 54, "image": null },
+    { "id": 12, "title": "Basic Elite Account", "rank": "basic", "price": 20, "heroes": 30, "skins": 10, "winRate": 50, "image": null }
+  ],
+  "orders": []
+}
+
