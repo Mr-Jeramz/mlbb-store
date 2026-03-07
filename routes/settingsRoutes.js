@@ -3,10 +3,10 @@ const router = express.Router();
 
 const settingsController = require("../controllers/settingsController");
 
-// Get store settings
+// Get settings
 router.get("/", settingsController.getSettings);
 
-// Update settings
-router.put("/", settingsController.updateSettings);
+// Save/update settings
+router.put("/", settingsController.saveSettings);
 
 module.exports = router;
