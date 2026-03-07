@@ -1,11 +1,12 @@
-// Main Routes - Combine all route modules
-
 const express = require("express");
 const router = express.Router();
 
-router.use("/products", require("./productRoutes"));
-router.use("/orders", require("./orderRoutes"));
-router.use("/stats", require("./statsRoutes"));
-router.use("/settings", require("./settingsRoutes"));
+const productRoutes = require("./productRoutes");
+const orderRoutes = require("./orderRoutes");
+const settingsRoutes = require("./settingsRoutes");
+
+router.use("/products", productRoutes);
+router.use("/orders", orderRoutes);
+router.use("/settings", settingsRoutes);
 
 module.exports = router;
