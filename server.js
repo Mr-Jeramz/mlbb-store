@@ -192,10 +192,8 @@ app.get("/test-email", async(req,res)=>{
 
 /* ---------------- API ROUTES ---------------- */
 
-app.use("/api/products", require("./routes/productRoutes"));
-app.use("/api/orders", require("./routes/orderRoutes"));
-app.use("/api/stats", require("./routes/statsRoutes"));
-app.use("/api/settings", require("./routes/settingsRoutes"));
+const routes = require("./routes");
+app.use("/api", routes);
 /* ---------------- FRONTEND ROUTES ---------------- */
 
 app.get("/store",(req,res)=>{
