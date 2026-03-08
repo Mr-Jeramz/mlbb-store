@@ -202,7 +202,9 @@ app.get("/test-email", async(req,res)=>{
 });
 
 /* ---------------- API ROUTES ---------------- */
-
+app.get("/api/products", (req, res) => {
+    res.json({ message: "Products API working" });
+});
 const routes = require("./routes");
 app.use("/api", routes);
 
