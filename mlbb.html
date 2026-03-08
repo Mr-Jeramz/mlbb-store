@@ -1300,15 +1300,31 @@
         });
 
         // Load settings from API
-        async function loadSettings() {
-            try {
-                const response = await fetch(`${API_BASE}/settings`);
-                settings = await response.json();
-                applySettings();
-            } catch (error) {
-                console.log('Using default settings');
-            }
-        }
+        async function loadStoreSettings() {
+
+    try {
+
+        const response = await fetch("/api/settings");
+        const settings = await response.json();
+
+        if(settings.storeName)
+            document.getElementById("storeName").textContent = settings.storeName;
+
+        if(settings.storeEmail)
+            document.getElementById("contactEmail").textContent = settings.storeEmail;
+
+        if(settings.storePhone)
+            document.getElementById("contactPhone").textContent = settings.storePhone;
+
+    } catch(err){
+
+        console.log("Failed to load settings");
+
+    }
+
+}
+
+loadStoreSettings();
 
         // Apply settings to UI
         function applySettings() {
