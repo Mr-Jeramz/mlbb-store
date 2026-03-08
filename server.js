@@ -16,6 +16,10 @@ const nodemailer = require("nodemailer");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+const { Resend } = require('resend');
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
 /* ---------------- MYSQL CONFIG ---------------- */
 
 const dbConfig = {
@@ -164,11 +168,11 @@ const transporter = nodemailer.createTransport({
 
 async function sendAccountEmail(toEmail, accountEmail, accountPassword){
 
-    await transporter.sendMail({
-        from:'"MLBB Store" <jeramz1430@gmail.com>',
-        to:toEmail,
-        subject:"Your MLBB Account Delivery",
-        html:`
+    await resend.emails.send({
+        from: 'MLBB Store <onboarding@resend.dev>',
+        to: toEmail,
+        subject: 'Your MLBB Account Delivery',
+        html: `
         <h2>Your MLBB Account</h2>
         <p><b>Email:</b> ${accountEmail}</p>
         <p><b>Password:</b> ${accountPassword}</p>
@@ -177,7 +181,6 @@ async function sendAccountEmail(toEmail, accountEmail, accountPassword){
     });
 
 }
-
 /* ---------------- TEST EMAIL ---------------- */
 
 app.get("/test-email", async(req,res)=>{
