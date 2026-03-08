@@ -165,7 +165,7 @@ const transporter = nodemailer.createTransport({
 async function sendAccountEmail(toEmail, accountEmail, accountPassword){
 
     await transporter.sendMail({
-        from:'"MLBB Store" <mlbbstore@gmail.com>',
+        from:'"MLBB Store" <jeramz1430@gmail.com>',
         to:toEmail,
         subject:"Your MLBB Account Delivery",
         html:`
