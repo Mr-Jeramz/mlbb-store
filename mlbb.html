@@ -1301,12 +1301,11 @@
         let cart = [];
         let settings = {};
         let processingFeePercent = 0.05; // Default 5%
-
-        document.addEventListener('DOMContentLoaded', () => {
-            fetchProducts();
-            loadSettings();
-            setupFilters();
-        });
+document.addEventListener('DOMContentLoaded', () => {
+    fetchProducts();
+    loadStoreSettings();   // correct function
+    setupFilters();
+});
 
         // Load settings from API
        async function loadStoreSettings() {
