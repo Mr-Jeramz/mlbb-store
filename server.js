@@ -222,12 +222,32 @@ app.get("/",(req,res)=>{
 
 /* ---------------- START SERVER ---------------- */
 
-app.listen(PORT, async () => {
+/* ---------------- START SERVER ---------------- */
 
-    console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`Store → /store`);
-    console.log(`Owner → /owner`);
+async function startServer() {
 
-    await initDB();
+    try {
 
-});
+        // Initialize database first
+        await initDB();
+
+        // Then start server
+        app.listen(PORT, () => {
+            console.log(`🚀 Server running on port ${PORT}`);
+            console.log(`Store → /store`);
+            console.log(`Owner → /owner`);
+            console.log(`API → /api/products`);
+            console.log(`API → /api/orders`);
+            console.log(`API → /api/settings`);
+        });
+
+    } catch (err) {
+
+        console.error("❌ Failed to start server:", err);
+        process.exit(1);
+
+    }
+
+}
+
+startServer();
