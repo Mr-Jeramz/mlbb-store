@@ -11,12 +11,11 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const path = require("path");
 const mysql = require("mysql2/promise");
-const nodemailer = require("nodemailer");
+
+const { Resend } = require("resend");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
-const { Resend } = require('resend');
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -154,33 +153,34 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(__dirname));
 
-/* ---------------- EMAIL SYSTEM ---------------- */
-
-const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true,
-    auth: {
-        user: "jeramz1430@gmail.com",
-        pass: process.env.EMAIL_PASS
-    }
-});
+/* ---------------- EMAIL SYSTEM (RESEND) ---------------- */
 
 async function sendAccountEmail(toEmail, accountEmail, accountPassword){
 
-    await resend.emails.send({
-        from: 'MLBB Store <onboarding@resend.dev>',
-        to: "jeramz1430@gmail.com",
-        subject: 'Your MLBB Account Delivery',
-        html: `
-        <h2>Your MLBB Account</h2>
-        <p><b>Email:</b> ${accountEmail}</p>
-        <p><b>Password:</b> ${accountPassword}</p>
-        <p>Please change the password immediately.</p>
-        `
-    });
+    try {
+
+        await resend.emails.send({
+            from: "MLBB Store <onboarding@resend.dev>",
+            to: toEmail,
+            subject: "Your MLBB Account Delivery",
+            html: `
+            <h2>Your MLBB Account</h2>
+            <p><b>Email:</b> ${accountEmail}</p>
+            <p><b>Password:</b> ${accountPassword}</p>
+            <p>Please change the password immediately.</p>
+            `
+        });
+
+        console.log("✅ Email sent to:", toEmail);
+
+    } catch(err){
+
+        console.error("❌ Email failed:", err);
+
+    }
 
 }
+
 /* ---------------- TEST EMAIL ---------------- */
 
 app.get("/test-email", async(req,res)=>{
@@ -188,7 +188,7 @@ app.get("/test-email", async(req,res)=>{
     try{
 
         await sendAccountEmail(
-            "YOUR_EMAIL@gmail.com",
+            "jeramz1430@gmail.com",
             "testmoonton@gmail.com",
             "password123"
         );
@@ -205,9 +205,11 @@ app.get("/test-email", async(req,res)=>{
 });
 
 /* ---------------- API ROUTES ---------------- */
+
 app.get("/api/products", (req, res) => {
     res.json({ message: "Products API working" });
 });
+
 const routes = require("./routes");
 app.use("/api", routes);
 
@@ -227,23 +229,16 @@ app.get("/",(req,res)=>{
 
 /* ---------------- START SERVER ---------------- */
 
-/* ---------------- START SERVER ---------------- */
-
 async function startServer() {
 
     try {
 
-        // Initialize database first
         await initDB();
 
-        // Then start server
         app.listen(PORT, () => {
             console.log(`🚀 Server running on port ${PORT}`);
             console.log(`Store → /store`);
             console.log(`Owner → /owner`);
-            console.log(`API → /api/products`);
-            console.log(`API → /api/orders`);
-            console.log(`API → /api/settings`);
         });
 
     } catch (err) {
