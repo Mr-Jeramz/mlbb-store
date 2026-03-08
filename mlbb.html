@@ -1309,26 +1309,33 @@
         });
 
         // Load settings from API
-        async function loadStoreSettings() {
+       async function loadStoreSettings() {
 
     try {
 
         const response = await fetch("/api/settings");
-        const settings = await response.json();
+        const data = await response.json();
 
-        if(settings.storeName)
-            document.getElementById("storeName").textContent = settings.storeName;
+        // Store Name
+        const nameEl = document.getElementById("storeName");
+        if(nameEl && data.storeName){
+            nameEl.textContent = data.storeName;
+        }
 
-        if(settings.storeEmail)
-            document.getElementById("contactEmail").textContent = settings.storeEmail;
+        // Email
+        const emailEl = document.getElementById("contactEmail");
+        if(emailEl && data.storeEmail){
+            emailEl.textContent = data.storeEmail;
+        }
 
-        if(settings.storePhone)
-            document.getElementById("contactPhone").textContent = settings.storePhone;
+        // Phone
+        const phoneEl = document.getElementById("contactPhone");
+        if(phoneEl && data.storePhone){
+            phoneEl.textContent = data.storePhone;
+        }
 
     } catch(err){
-
-        console.log("Failed to load settings");
-
+        console.log("Failed loading settings", err);
     }
 
 }
