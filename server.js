@@ -155,28 +155,18 @@ app.use(express.static(__dirname));
 
 /* ---------------- EMAIL SYSTEM (RESEND) ---------------- */
 
-async function sendAccountEmail() {
+async function sendAccountEmail(){
 
-    try {
-
-        const { data, error } = await resend.emails.send({
-            from: "MLBB Store <onboarding@resend.dev>",
-            to: ["njeramson@gmail.com"],
-            subject: "MLBB Store Test Email",
-            html: "<h2>Resend is working!</h2>"
-        });
-
-        if (error) {
-            console.error("RESEND ERROR:", error);
-        } else {
-            console.log("RESEND SUCCESS:", data);
-        }
-
-    } catch (err) {
-
-        console.error("EMAIL FAILURE:", err);
-
-    }
+    await resend.emails.send({
+        from: "MLBB Store <onboarding@resend.dev>",
+        to: ["njeramson@gmail.com"],
+        subject: "MLBB Store Test Email",
+        html: `
+        <h2>Test Email</h2>
+        <p>Email: test@example.com</p>
+        <p>Password: 123456</p>
+        `
+    });
 
 }
 
