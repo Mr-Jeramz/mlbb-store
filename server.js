@@ -155,27 +155,26 @@ app.use(express.static(__dirname));
 
 /* ---------------- EMAIL SYSTEM (RESEND) ---------------- */
 
-async function sendAccountEmail(toEmail, accountEmail, accountPassword){
+async function sendAccountEmail() {
 
     try {
 
-        await resend.emails.send({
+        const { data, error } = await resend.emails.send({
             from: "MLBB Store <onboarding@resend.dev>",
-            to: "jeramz1430@gmail.com",
-            subject: "Your MLBB Account Delivery",
-            html: `
-            <h2>Your MLBB Account</h2>
-            <p><b>Email:</b> ${accountEmail}</p>
-            <p><b>Password:</b> ${accountPassword}</p>
-            <p>Please change the password immediately.</p>
-            `
+            to: ["jeramz1430@gmail.com"],
+            subject: "MLBB Store Test Email",
+            html: "<h2>Resend is working!</h2>"
         });
 
-        console.log("✅ Email sent to:", toEmail);
+        if (error) {
+            console.error("RESEND ERROR:", error);
+        } else {
+            console.log("RESEND SUCCESS:", data);
+        }
 
-    } catch(err){
+    } catch (err) {
 
-        console.error("❌ Email failed:", err);
+        console.error("EMAIL FAILURE:", err);
 
     }
 
@@ -187,7 +186,7 @@ app.get("/test-email", async (req,res)=>{
 
     await sendAccountEmail();
 
-    res.send("Test email triggered");
+    res.send("Email trigger attempted");
 
 });
 
