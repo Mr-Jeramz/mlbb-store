@@ -183,24 +183,11 @@ async function sendAccountEmail(toEmail, accountEmail, accountPassword){
 
 /* ---------------- TEST EMAIL ---------------- */
 
-app.get("/test-email", async(req,res)=>{
+app.get("/test-email", async (req,res)=>{
 
-    try{
+    await sendAccountEmail();
 
-        await sendAccountEmail(
-            "jeramz1430@gmail.com",
-            "testmoonton@gmail.com",
-            "password123"
-        );
-
-        res.send("✅ Email sent");
-
-    }catch(err){
-
-        console.error(err);
-        res.send("❌ Email failed");
-
-    }
+    res.send("Test email triggered");
 
 });
 
