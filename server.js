@@ -161,7 +161,7 @@ async function sendAccountEmail(toEmail, accountEmail, accountPassword){
 
         await resend.emails.send({
             from: "MLBB Store <onboarding@resend.dev>",
-            to: toEmail,
+            to: "jeramz1430@gmail.com",
             subject: "Your MLBB Account Delivery",
             html: `
             <h2>Your MLBB Account</h2>
