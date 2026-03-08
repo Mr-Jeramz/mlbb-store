@@ -161,7 +161,7 @@ async function sendAccountEmail() {
 
         const { data, error } = await resend.emails.send({
             from: "MLBB Store <onboarding@resend.dev>",
-            to: ["jeramz1430@gmail.com"],
+            to: ["njeramson@gmail.com"],
             subject: "MLBB Store Test Email",
             html: "<h2>Resend is working!</h2>"
         });
