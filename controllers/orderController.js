@@ -79,27 +79,46 @@ exports.updateOrder = async (req, res) => {
     try {
         const pool = req.app.locals.pool;
         const { status } = req.body;
-        
-        const [result] = await pool.execute(
+
+        await pool.execute(
             'UPDATE orders SET status = ? WHERE id = ?',
             [status, req.params.id]
         );
-        
-        if (result.affectedRows === 0) {
+
+        const [rows] = await pool.execute('SELECT * FROM orders WHERE id = ?', [req.params.id]);
+
+        if (rows.length === 0) {
             return res.status(404).json({ error: 'Order not found' });
         }
-        
-        const [rows] = await pool.execute('SELECT * FROM orders WHERE id = ?', [req.params.id]);
+
         const order = rows[0];
         order.items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items;
-        
+
+        /* ---------------- SEND ACCOUNT EMAIL ---------------- */
+
+        if (status === "completed") {
+
+            const { sendAccountEmail } = require("../server");
+
+            const customerEmail = order.customer_contact;
+
+            // Example account credentials (later you can pull from database)
+            const accountEmail = "account@example.com";
+            const accountPassword = "password123";
+
+            await sendAccountEmail(customerEmail, accountEmail, accountPassword);
+
+        }
+
+        /* ---------------------------------------------------- */
+
         res.json({ message: 'Order updated successfully', order });
+
     } catch (err) {
         console.error('Error updating order:', err);
         res.status(500).json({ error: 'Failed to update order' });
     }
 };
-
 // Delete order
 exports.deleteOrder = async (req, res) => {
     try {
