@@ -183,13 +183,19 @@ async function sendAccountEmail(toEmail, accountEmail, accountPassword){
 
 }
 
+module.exports.sendAccountEmail = sendAccountEmail;
+
 /* ---------------- TEST EMAIL ---------------- */
 
 app.get("/test-email", async (req,res)=>{
 
-    await sendAccountEmail();
+    await sendAccountEmail(
+        "your-email@gmail.com",
+        "testaccount@gmail.com",
+        "password123"
+    );
 
-    res.send("Email trigger attempted");
+    res.send("Test email sent");
 
 });
 
