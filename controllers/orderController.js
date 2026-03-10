@@ -74,7 +74,7 @@ exports.createOrder = async (req, res) => {
     }
 };
 
-// Update order status
+/// Update order status
 exports.updateOrder = async (req, res) => {
     try {
         const pool = req.app.locals.pool;
@@ -85,7 +85,10 @@ exports.updateOrder = async (req, res) => {
             [status, req.params.id]
         );
 
-        const [rows] = await pool.execute('SELECT * FROM orders WHERE id = ?', [req.params.id]);
+        const [rows] = await pool.execute(
+            'SELECT * FROM orders WHERE id = ?',
+            [req.params.id]
+        );
 
         if (rows.length === 0) {
             return res.status(404).json({ error: 'Order not found' });
@@ -102,11 +105,40 @@ exports.updateOrder = async (req, res) => {
 
             const customerEmail = order.customer_contact;
 
-            // Example account credentials (later you can pull from database)
-            const accountEmail = "account@example.com";
-            const accountPassword = "password123";
+            // Get product id from order items
+            const productId = order.items[0].id;
 
-            await sendAccountEmail(customerEmail, accountEmail, accountPassword);
+            // Find available account
+            const [accounts] = await pool.execute(
+                "SELECT * FROM accounts WHERE product_id = ? AND status = 'available' LIMIT 1",
+                [productId]
+            );
+
+            if (accounts.length === 0) {
+                console.log("❌ No available accounts for this product");
+                return res.json({
+                    message: "Order updated but no account available to send",
+                    order
+                });
+            }
+
+            const account = accounts[0];
+
+            const accountEmail = account.game_email;
+            const accountPassword = account.game_password;
+
+            // Send email
+            await sendAccountEmail(
+                customerEmail,
+                accountEmail,
+                accountPassword
+            );
+
+            // Mark account as sold
+            await pool.execute(
+                "UPDATE accounts SET status = 'sold' WHERE id = ?",
+                [account.id]
+            );
 
         }
 
