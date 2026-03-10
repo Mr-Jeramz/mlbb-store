@@ -1580,12 +1580,7 @@
     <input type="text" id="gamePassword" placeholder="Enter MLBB account password">
 </div>
 
-<div class="form-group">
-    <label>Product ID (Inventory Link)</label>
-    <select id="inventoryProductId">
-<option value="">Select Product</option>
-</select>
-</div>
+
 
                     <div class="form-actions">
                         <button type="button" class="btn-cancel" onclick="closeProductModal()">Cancel</button>
@@ -1917,15 +1912,11 @@ async function handleProductSubmit(e) {
         price: parseFloat(document.getElementById('productPrice').value)
     };
 
-    // NEW INVENTORY DATA
     const game_email = document.getElementById("gameEmail").value;
     const game_password = document.getElementById("gamePassword").value;
-    const product_id = document.getElementById("inventoryProductId").value;
 
     try {
-
         if (isEditMode) {
-
             await fetch(`${API_BASE}/products/${formData.id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -1933,8 +1924,7 @@ async function handleProductSubmit(e) {
             });
 
         } else {
-
-            // CREATE PRODUCT
+            // Step 1: Create the product
             const response = await fetch(`${API_BASE}/products`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -1943,64 +1933,44 @@ async function handleProductSubmit(e) {
 
             const createdProduct = await response.json();
 
-            // CREATE ACCOUNT INVENTORY
-            await fetch(`${API_BASE}/accounts`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    product_id: product_id || createdProduct.id,
-                    game_email: game_email,
-                    game_password: game_password
-                })
-            });
+            // Step 2: Auto-link account to the newly created product's ID
+            if (game_email && game_password) {
+                await fetch(`${API_BASE}/accounts`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        product_id: createdProduct.id,
+                        game_email: game_email,
+                        game_password: game_password
+                    })
+                });
+            }
 
+            formData.id = createdProduct.id;
         }
 
     } catch (error) {
         console.log('API unavailable, using localStorage');
+        formData.id = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
     }
 
     if (isEditMode) {
-
         const index = products.findIndex(p => p.id === formData.id);
         if (index !== -1) products[index] = formData;
-
     } else {
-
-        formData.id = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+        if (!formData.id) {
+            formData.id = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+        }
         products.push(formData);
-
     }
 
     localStorage.setItem('mlbb_products', JSON.stringify(products));
-
     renderProducts();
     updateProductStats();
     closeProductModal();
-
+    fetchAccounts();
     showToast('Account saved successfully!', 'success');
 }
-
-        // Delete Product
-        function deleteProduct(id) {
-            deleteId = id;
-            if (confirm('Are you sure you want to delete this account?')) {
-                // Try to delete from API first
-                fetch(`${API_BASE}/products/${deleteId}`, {
-                    method: 'DELETE'
-                }).catch(error => {
-                    console.log('API delete failed, using localStorage fallback');
-                });
-                
-                products = products.filter(p => p.id !== deleteId);
-                localStorage.setItem('mlbb_products', JSON.stringify(products));
-                renderProducts();
-                updateProductStats();
-                showToast('Account deleted!', 'success');
-                populateProductDropdown();
-            }
-        }
-
 
 // fetching account
         async function fetchAccounts() {
