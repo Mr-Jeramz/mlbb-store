@@ -5,7 +5,9 @@ const productRoutes = require("./productRoutes");
 const orderRoutes = require("./orderRoutes");
 const settingsRoutes = require("./settingsRoutes");
 const accountRoutes = require("./accountRoutes");
+const paymentRoutes = require('./paymentRoutes');
 
+router.use('/payment', paymentRoutes);
 router.use("/accounts", accountRoutes);
 router.use("/products", productRoutes);
 router.use("/orders", orderRoutes);
