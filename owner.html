@@ -1565,7 +1565,9 @@
 
 <div class="form-group">
     <label>Product ID (Inventory Link)</label>
-    <input type="number" id="inventoryProductId" placeholder="Enter Product ID">
+    <select id="inventoryProductId">
+<option value="">Select Product</option>
+</select>
 </div>
 
                     <div class="form-actions">
@@ -1671,6 +1673,7 @@
             }
             renderProducts();
             updateProductStats();
+            populateProductDropdown();
         }
 
         // Fetch Orders
@@ -1682,7 +1685,23 @@
                 orders = [];
             }
         }
+function populateProductDropdown() {
 
+    const dropdown = document.getElementById("inventoryProductId");
+
+    dropdown.innerHTML = `<option value="">Select Product</option>`;
+
+    products.forEach(product => {
+
+        dropdown.innerHTML += `
+        <option value="${product.id}">
+            ${product.title} (ID: ${product.id})
+        </option>
+        `;
+
+    });
+
+}
         // Render Products
         function renderProducts() {
             const tbody = document.getElementById('productsTableBody');
