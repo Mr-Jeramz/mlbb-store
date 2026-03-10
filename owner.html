@@ -642,13 +642,9 @@
         .remove-image:hover { background: #c0392b; transform: scale(1.1); }
 
 /* Responsive */
-     @media (max-width: 768px) {
+    @media (max-width: 768px) {
     header {
         padding: 0.6rem 3%;
-    }
-
-    .header-content {
-        gap: 0.5rem;
     }
 
     .logo {
@@ -670,11 +666,6 @@
     .btn-logout {
         padding: 6px 12px;
         font-size: 0.8rem;
-    }
-
-    .notification-bell {
-        padding: 6px 10px;
-        font-size: 1rem;
     }
 
     .mobile-menu-btn {
@@ -706,18 +697,22 @@
     .sidebar.active {
         display: block;
     }
-.dashboard-container {
-    flex-direction: column;
-    margin-top: 0;
-}
+
+    .dashboard-container {
+        flex-direction: row;
+    }
+
     .main-content {
-    margin-left: 0 !important;
-    padding: 1rem;
-    width: 100% !important;
-    max-width: 100% !important;
-    margin-top: 55px;
-    flex: 1;
-}
+        margin-left: 0 !important;
+        padding: 1rem;
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 1;
+    }
+
+    .page-title {
+        font-size: 1.2rem;
+    }
 
     .page-header {
         flex-direction: column;
@@ -726,16 +721,12 @@
         margin-bottom: 1rem;
     }
 
-    .page-title {
-        font-size: 1.2rem;
-    }
-
     .stats-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 0.8rem;
-    margin-bottom: 1rem;
-    width: 100%;
-}
+        grid-template-columns: 1fr 1fr;
+        gap: 0.8rem;
+        margin-bottom: 1rem;
+        width: 100%;
+    }
 
     .stat-card {
         padding: 0.8rem;
@@ -804,22 +795,6 @@
         max-height: 90vh;
     }
 
-    .modal-header {
-        padding: 0.8rem;
-    }
-
-    .modal-header h2 {
-        font-size: 1rem;
-    }
-
-    .modal-body {
-        padding: 0.8rem;
-    }
-
-    .form-group {
-        margin-bottom: 0.8rem;
-    }
-
     .form-row {
         grid-template-columns: 1fr;
         gap: 0.8rem;
@@ -832,10 +807,6 @@
     .settings-grid {
         grid-template-columns: 1fr;
         gap: 0.8rem;
-    }
-
-    .settings-card {
-        padding: 0.8rem;
     }
 
     .notification-toast {
@@ -864,11 +835,7 @@
 
 @media (max-width: 480px) {
     .stats-grid {
-    grid-template-columns: 1fr 1fr;
-}
-
-    .logo span {
-        display: none;
+        grid-template-columns: 1fr 1fr;
     }
 }
     </style>
