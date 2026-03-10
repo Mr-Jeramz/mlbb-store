@@ -1897,6 +1897,27 @@ select.appendChild(option);
             document.getElementById('productModal').classList.add('active');
         }
 
+        // Delete Product
+function deleteProduct(id) {
+    if (confirm('Are you sure you want to delete this account?')) {
+        fetch(`${API_BASE}/products/${id}`, {
+            method: 'DELETE'
+        })
+        .then(() => {
+            products = products.filter(p => p.id !== id);
+            localStorage.setItem('mlbb_products', JSON.stringify(products));
+            renderProducts();
+            updateProductStats();
+            fetchAccounts();
+            showToast('Account deleted!', 'success');
+        })
+        .catch(error => {
+            console.error('Delete failed:', error);
+            showToast('Failed to delete!', 'error');
+        });
+    }
+}
+
         // Handle Product Submit
 async function handleProductSubmit(e) {
     e.preventDefault();
