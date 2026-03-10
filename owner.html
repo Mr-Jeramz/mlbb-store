@@ -1461,9 +1461,10 @@
                         <div class="form-group">
                             <label>Currency</label>
                             <select id="currency">
-                                <option value="USD" selected>USD ($)</option>
-                                <option value="PHP">PHP (₱)</option>
-                                <option value="IDR">IDR (Rp)</option>
+                                <option value="USD">USD ($)</option>
+<option value="PHP">PHP (₱)</option>
+<option value="IDR">IDR (Rp)</option>
+<option value="INR" selected>INR (₹)</option>
                             </select>
                         </div>
                         <button class="btn-add" onclick="savePricing()">
@@ -1741,7 +1742,7 @@ select.appendChild(option);
                     <td>${p.heroes || p.heroes_count || 0}</td>
                     <td>${p.skins || p.skins_count || 0}</td>
                     <td>${p.winRate || p.win_rate || 0}%</td>
-                    <td class="price">$${p.price}</td>
+                    <td class="price">₹${p.price}</td>
                     <td class="action-buttons">
                         <button class="btn-action btn-edit" onclick="editProduct(${p.id})"><i class="fas fa-edit"></i></button>
                         <button class="btn-action btn-delete" onclick="deleteProduct(${p.id})"><i class="fas fa-trash"></i></button>
@@ -1754,7 +1755,7 @@ select.appendChild(option);
         function updateProductStats() {
             document.getElementById('totalProducts').textContent = products.length;
             const totalValue = products.reduce((sum, p) => sum + parseFloat(p.price || 0), 0);
-            document.getElementById('totalValue').textContent = `$${totalValue}`;
+            document.getElementById('totalValue').textContent = `₹${totalValue}`;
             document.getElementById('totalSold').textContent = orders.length;
             
             const rankCounts = products.reduce((acc, p) => {
@@ -1776,7 +1777,7 @@ select.appendChild(option);
             document.getElementById('totalOrders').textContent = orders.length;
             document.getElementById('pendingOrders').textContent = pending;
             document.getElementById('completedOrders').textContent = completed;
-            document.getElementById('totalRevenue').textContent = `$${revenue.toFixed(2)}`;
+            document.getElementById('totalRevenue').textContent = `₹${revenue.toFixed(2)}`;
 
             if (orders.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><i class="fas fa-shopping-cart"></i><h3>No Orders</h3></div></td></tr>`;
@@ -1793,7 +1794,7 @@ select.appendChild(option);
                         <td>${o.customer_name || 'N/A'}</td>
                         <td>${o.customer_contact || 'N/A'}</td>
                         <td>${itemCount} item(s)</td>
-                        <td class="price">$${parseFloat(o.total || 0).toFixed(2)}</td>
+                        <td class="price">₹${parseFloat(o.total || 0).toFixed(2)}</td>
                         <td><span class="status-badge status-${o.status || 'pending'}">${o.status || 'pending'}</span></td>
                         <td>${date}</td>
                         <td class="action-buttons">
@@ -1827,7 +1828,7 @@ select.appendChild(option);
             document.getElementById('totalCustomers').textContent = customers.length;
             document.getElementById('totalPurchases').textContent = orders.length;
             const avgValue = customers.length > 0 ? customers.reduce((sum, c) => sum + c.total, 0) / customers.length : 0;
-            document.getElementById('avgOrderValue').textContent = `$${avgValue.toFixed(2)}`;
+            document.getElementById('avgOrderValue').textContent = `₹${avgValue.toFixed(2)}`;
 
             if (customers.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fas fa-users"></i><h3>No Customers</h3></div></td></tr>`;
@@ -1840,7 +1841,7 @@ select.appendChild(option);
                     <td><strong>${c.name}</strong></td>
                     <td>${c.contact || 'N/A'}</td>
                     <td>${c.orders}</td>
-                    <td class="price">$${c.total.toFixed(2)}</td>
+                    <td class="price">₹${c.total.toFixed(2)}</td>
                     <td>${new Date(c.lastOrder).toLocaleDateString()}</td>
                 </tr>
             `).join('');
@@ -1849,7 +1850,7 @@ select.appendChild(option);
         // Render Analytics
         function renderAnalytics() {
             const revenue = orders.reduce((sum, o) => sum + parseFloat(o.total || 0), 0);
-            document.getElementById('analyticsRevenue').textContent = `$${revenue.toFixed(2)}`;
+            document.getElementById('analyticsRevenue').textContent = `₹${revenue.toFixed(2)}`;
             document.getElementById('conversionRate').textContent = `${Math.min(100, Math.floor(Math.random() * 20) + 5)}%`;
             document.getElementById('pageViews').textContent = Math.floor(Math.random() * 5000) + 1000;
             document.getElementById('growthRate').textContent = `+${Math.floor(Math.random() * 15) + 1}%`;
