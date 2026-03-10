@@ -1552,6 +1552,22 @@
                         </div>
                     </div>
 
+                    <!-- Inventory Fields -->
+<div class="form-group">
+    <label>Game Email (Login Email)</label>
+    <input type="text" id="gameEmail" placeholder="Enter MLBB account email">
+</div>
+
+<div class="form-group">
+    <label>Game Password</label>
+    <input type="text" id="gamePassword" placeholder="Enter MLBB account password">
+</div>
+
+<div class="form-group">
+    <label>Product ID (Inventory Link)</label>
+    <input type="number" id="inventoryProductId" placeholder="Enter Product ID">
+</div>
+
                     <div class="form-actions">
                         <button type="button" class="btn-cancel" onclick="closeProductModal()">Cancel</button>
                         <button type="submit" class="btn-submit" id="productSubmitBtn">
@@ -1846,52 +1862,83 @@
         }
 
         // Handle Product Submit
-        async function handleProductSubmit(e) {
-            e.preventDefault();
-            
-            const formData = {
-                id: document.getElementById('productId').value ? parseInt(document.getElementById('productId').value) : null,
-                title: document.getElementById('productTitle').value,
-                image: currentImageBase64,
-                rank: document.getElementById('productRank').value,
-                heroes: parseInt(document.getElementById('productHeroes').value),
-                skins: parseInt(document.getElementById('productSkins').value),
-                winRate: parseInt(document.getElementById('productWinRate').value),
-                price: parseFloat(document.getElementById('productPrice').value)
-            };
+async function handleProductSubmit(e) {
+    e.preventDefault();
 
-            try {
-                if (isEditMode) {
-                    await fetch(`${API_BASE}/products/${formData.id}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(formData)
-                    });
-                } else {
-                    await fetch(`${API_BASE}/products`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(formData)
-                    });
-                }
-            } catch (error) {
-                console.log('API unavailable, using localStorage');
-            }
+    const formData = {
+        id: document.getElementById('productId').value ? parseInt(document.getElementById('productId').value) : null,
+        title: document.getElementById('productTitle').value,
+        image: currentImageBase64,
+        rank: document.getElementById('productRank').value,
+        heroes: parseInt(document.getElementById('productHeroes').value),
+        skins: parseInt(document.getElementById('productSkins').value),
+        winRate: parseInt(document.getElementById('productWinRate').value),
+        price: parseFloat(document.getElementById('productPrice').value)
+    };
 
-            if (isEditMode) {
-                const index = products.findIndex(p => p.id === formData.id);
-                if (index !== -1) products[index] = formData;
-            } else {
-                formData.id = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
-                products.push(formData);
-            }
+    // NEW INVENTORY DATA
+    const game_email = document.getElementById("gameEmail").value;
+    const game_password = document.getElementById("gamePassword").value;
+    const product_id = document.getElementById("inventoryProductId").value;
 
-            localStorage.setItem('mlbb_products', JSON.stringify(products));
-            renderProducts();
-            updateProductStats();
-            closeProductModal();
-            showToast('Account saved successfully!', 'success');
+    try {
+
+        if (isEditMode) {
+
+            await fetch(`${API_BASE}/products/${formData.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+
+        } else {
+
+            // CREATE PRODUCT
+            const response = await fetch(`${API_BASE}/products`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+
+            const createdProduct = await response.json();
+
+            // CREATE ACCOUNT INVENTORY
+            await fetch(`${API_BASE}/accounts`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    product_id: product_id || createdProduct.id,
+                    game_email: game_email,
+                    game_password: game_password
+                })
+            });
+
         }
+
+    } catch (error) {
+        console.log('API unavailable, using localStorage');
+    }
+
+    if (isEditMode) {
+
+        const index = products.findIndex(p => p.id === formData.id);
+        if (index !== -1) products[index] = formData;
+
+    } else {
+
+        formData.id = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+        products.push(formData);
+
+    }
+
+    localStorage.setItem('mlbb_products', JSON.stringify(products));
+
+    renderProducts();
+    updateProductStats();
+    closeProductModal();
+
+    showToast('Account saved successfully!', 'success');
+}
 
         // Delete Product
         function deleteProduct(id) {
