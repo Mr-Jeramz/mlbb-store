@@ -34,10 +34,11 @@ router.post('/verify', (req, res) => {
         }
 
         const sign = razorpay_order_id + '|' + razorpay_payment_id;
-        const expectedSign = crypto
-            .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
-            .update(sign)
-            .toString('hex');
+const secret = String(process.env.RAZORPAY_KEY_SECRET);
+const expectedSign = crypto
+    .createHmac('sha256', secret)
+    .update(sign)
+    .toString('hex');
 
         console.log('Expected:', expectedSign);
         console.log('Received:', razorpay_signature);
