@@ -5,7 +5,7 @@ const productRoutes = require("./productRoutes");
 const orderRoutes = require("./orderRoutes");
 const settingsRoutes = require("./settingsRoutes");
 
-const accounts = require("./accounts");
+const accounts = require("./accountRoutes");
 
 router.use("/accounts", accounts);
 
