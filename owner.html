@@ -1231,6 +1231,23 @@
                     </table>
                 </div>
             </section>
+  <!-- account Section -->
+            <h3>Account Inventory</h3>
+
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Product</th>
+<th>Email</th>
+<th>Password</th>
+<th>Status</th>
+</tr>
+</thead>
+
+<tbody id="accountsTableBody"></tbody>
+
+</table>
 
             <!-- Orders Section -->
             <section id="orders-section" class="section">
@@ -1620,12 +1637,13 @@
         let currentImageBase64 = null;
 
         // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            fetchProducts();
-            fetchOrders();
-            loadSettings();
-            startOrderPolling();
-        });
+       document.addEventListener('DOMContentLoaded', () => {
+fetchProducts();
+fetchOrders();
+fetchAccounts();
+loadSettings();
+startOrderPolling();
+});
 
         // Navigation
         function showSection(section, element) {
