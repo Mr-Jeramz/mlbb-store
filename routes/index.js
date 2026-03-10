@@ -5,6 +5,10 @@ const productRoutes = require("./productRoutes");
 const orderRoutes = require("./orderRoutes");
 const settingsRoutes = require("./settingsRoutes");
 
+const accounts = require("./accounts");
+
+router.use("/accounts", accounts);
+
 router.use("/products", productRoutes);
 router.use("/orders", orderRoutes);
 router.use("/settings", settingsRoutes);
