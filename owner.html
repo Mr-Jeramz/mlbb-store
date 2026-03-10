@@ -1041,6 +1041,65 @@
     </style>
 </head>
 <body>
+    <!-- PIN Lock Screen -->
+<div id="pinLockScreen" style="
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    z-index: 99999; display: flex; justify-content: center; align-items: center;
+">
+    <div style="
+        background: #16213e; border: 2px solid #6c5ce7;
+        border-radius: 20px; padding: 3rem 2.5rem;
+        text-align: center; width: 100%; max-width: 350px;
+    ">
+        <i class="fas fa-gamepad" style="font-size: 3rem; color: #ffd700; margin-bottom: 1rem;"></i>
+        <h2 style="color: #ffd700; margin-bottom: 0.5rem;">MLBB Store</h2>
+        <p style="color: #a0a0a0; margin-bottom: 2rem; font-size: 0.9rem;">Enter PIN to access owner dashboard</p>
+
+        <div id="pinDots" style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 2rem;">
+            <div class="pin-dot" style="width: 16px; height: 16px; border-radius: 50%; border: 2px solid #6c5ce7; background: transparent;"></div>
+            <div class="pin-dot" style="width: 16px; height: 16px; border-radius: 50%; border: 2px solid #6c5ce7; background: transparent;"></div>
+            <div class="pin-dot" style="width: 16px; height: 16px; border-radius: 50%; border: 2px solid #6c5ce7; background: transparent;"></div>
+            <div class="pin-dot" style="width: 16px; height: 16px; border-radius: 50%; border: 2px solid #6c5ce7; background: transparent;"></div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem; margin-bottom: 1rem;">
+            <button onclick="pinPress('1')" class="pin-btn">1</button>
+            <button onclick="pinPress('2')" class="pin-btn">2</button>
+            <button onclick="pinPress('3')" class="pin-btn">3</button>
+            <button onclick="pinPress('4')" class="pin-btn">4</button>
+            <button onclick="pinPress('5')" class="pin-btn">5</button>
+            <button onclick="pinPress('6')" class="pin-btn">6</button>
+            <button onclick="pinPress('7')" class="pin-btn">7</button>
+            <button onclick="pinPress('8')" class="pin-btn">8</button>
+            <button onclick="pinPress('9')" class="pin-btn">9</button>
+            <button onclick="pinClear()" class="pin-btn" style="background: #e74c3c !important;">C</button>
+            <button onclick="pinPress('0')" class="pin-btn">0</button>
+            <button onclick="pinBackspace()" class="pin-btn" style="background: #e67e22 !important;">⌫</button>
+        </div>
+
+        <p id="pinError" style="color: #e74c3c; font-size: 0.85rem; min-height: 20px;"></p>
+    </div>
+</div>
+
+<style>
+.pin-btn {
+    padding: 1rem;
+    background: #0f0f1a;
+    border: 2px solid #6c5ce7;
+    color: white;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Poppins', sans-serif;
+}
+.pin-btn:hover {
+    background: #6c5ce7;
+    transform: scale(1.05);
+}
+</style>
     <!-- Header -->
     <header>
         <div class="header-content">
@@ -2320,6 +2379,52 @@ tbody.innerHTML = accounts.map(acc => `
                 }
             }
         });
+        // PIN Lock
+const CORRECT_PIN = '1430';
+let enteredPin = '';
+
+function pinPress(digit) {
+    if (enteredPin.length >= 4) return;
+    enteredPin += digit;
+    updatePinDots();
+    if (enteredPin.length === 4) {
+        setTimeout(checkPin, 200);
+    }
+}
+
+function pinBackspace() {
+    enteredPin = enteredPin.slice(0, -1);
+    updatePinDots();
+}
+
+function pinClear() {
+    enteredPin = '';
+    updatePinDots();
+    document.getElementById('pinError').textContent = '';
+}
+
+function updatePinDots() {
+    const dots = document.querySelectorAll('.pin-dot');
+    dots.forEach((dot, i) => {
+        dot.style.background = i < enteredPin.length ? '#6c5ce7' : 'transparent';
+    });
+}
+
+function checkPin() {
+    if (enteredPin === CORRECT_PIN) {
+        document.getElementById('pinLockScreen').style.display = 'none';
+        sessionStorage.setItem('ownerUnlocked', 'true');
+    } else {
+        document.getElementById('pinError').textContent = '❌ Wrong PIN! Try again.';
+        enteredPin = '';
+        updatePinDots();
+    }
+}
+
+// Check if already unlocked this session
+if (sessionStorage.getItem('ownerUnlocked') === 'true') {
+    document.getElementById('pinLockScreen').style.display = 'none';
+}
     </script>
 </body>
 </html>
