@@ -77,6 +77,7 @@ exports.createOrder = async (req, res) => {
 // Update order status
 exports.updateOrder = async (req, res) => {
     try {
+
         const pool = req.app.locals.pool;
         const { status } = req.body;
 
@@ -86,6 +87,7 @@ exports.updateOrder = async (req, res) => {
             [status, req.params.id]
         );
 
+        // Get updated order
         const [rows] = await pool.execute(
             'SELECT * FROM orders WHERE id = ?',
             [req.params.id]
@@ -96,16 +98,60 @@ exports.updateOrder = async (req, res) => {
         }
 
         const order = rows[0];
-        order.items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items;
+        order.items = typeof order.items === 'string'
+            ? JSON.parse(order.items)
+            : order.items;
 
-        /* ---------------- ACCOUNT DELIVERY SYSTEM ---------------- */
+        /* -------- ACCOUNT DELIVERY -------- */
 
         if (status === "completed") {
 
             const { sendAccountEmail } = require("../server");
 
             const customerEmail = order.customer_contact;
+            const productId = order.items[0].id;
 
+            // Find available account
+            const [accounts] = await pool.execute(
+                "SELECT * FROM accounts WHERE product_id = ? AND status = 'available' LIMIT 1",
+                [productId]
+            );
+
+            if (accounts.length === 0) {
+                console.log("❌ No available accounts for this product");
+                return res.json({
+                    message: "Order updated but no account available",
+                    order
+                });
+            }
+
+            const account = accounts[0];
+
+            // Mark account as sold
+            await pool.execute(
+                "UPDATE accounts SET status = 'sold' WHERE id = ?",
+                [account.id]
+            );
+
+            // Send credentials
+            await sendAccountEmail(
+                customerEmail,
+                account.game_email,
+                account.game_password
+            );
+        }
+
+        /* ---------------------------------- */
+
+        res.json({ message: "Order updated successfully", order });
+
+    } catch (err) {
+
+        console.error("Error updating order:", err);
+        res.status(500).json({ error: "Failed to update order" });
+
+    }
+};
             // Get product id from purchased item
             const productId = order.items[0].id;
 
