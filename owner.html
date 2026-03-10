@@ -1687,19 +1687,23 @@
         }
 function populateProductDropdown() {
 
-    const dropdown = document.getElementById("inventoryProductId");
+const select = document.getElementById("inventoryProductId");
 
-    dropdown.innerHTML = `<option value="">Select Product</option>`;
+if(!select) return;
 
-    products.forEach(product => {
+select.innerHTML = '<option value="">Select Product</option>';
 
-        dropdown.innerHTML += `
-        <option value="${product.id}">
-            ${product.title} (ID: ${product.id})
-        </option>
-        `;
+products.forEach(product => {
 
-    });
+const option = document.createElement("option");
+
+option.value = product.id;
+
+option.textContent = `${product.title} (ID: ${product.id})`;
+
+select.appendChild(option);
+
+});
 
 }
         // Render Products
@@ -1975,6 +1979,7 @@ async function handleProductSubmit(e) {
                 renderProducts();
                 updateProductStats();
                 showToast('Account deleted!', 'success');
+                populateProductDropdown();
             }
         }
 
