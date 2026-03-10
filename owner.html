@@ -1983,6 +1983,54 @@ async function handleProductSubmit(e) {
             }
         }
 
+
+// fetching account
+        async function fetchAccounts() {
+
+try {
+
+const response = await fetch(`${API_BASE}/accounts`);
+const data = await response.json();
+
+renderAccounts(data);
+
+} catch (error) {
+
+console.error("Failed to load accounts", error);
+
+}
+
+}
+        //render account
+function renderAccounts(accounts){
+
+const tbody = document.getElementById("accountsTableBody");
+
+if(!tbody) return;
+
+if(accounts.length === 0){
+
+tbody.innerHTML = `
+<tr>
+<td colspan="5">No accounts in inventory</td>
+</tr>
+`;
+
+return;
+
+}
+
+tbody.innerHTML = accounts.map(acc => `
+<tr>
+<td>${acc.id}</td>
+<td>${acc.product_id}</td>
+<td>${acc.game_email}</td>
+<td>${acc.game_password}</td>
+<td>${acc.status}</td>
+</tr>
+`).join("");
+
+}
         // Order Modal
         function viewOrder(id) {
             const order = orders.find(o => o.id === id);
