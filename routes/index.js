@@ -4,11 +4,9 @@ const router = express.Router();
 const productRoutes = require("./productRoutes");
 const orderRoutes = require("./orderRoutes");
 const settingsRoutes = require("./settingsRoutes");
-
 const accounts = require("./accountRoutes");
 
 router.use("/accounts", accounts);
-
 router.use("/products", productRoutes);
 router.use("/orders", orderRoutes);
 router.use("/settings", settingsRoutes);
