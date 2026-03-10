@@ -6,6 +6,7 @@
     <title>MLBB Store - Premium Accounts</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <style>
         :root {
             --primary: #6c5ce7;
@@ -1384,51 +1385,106 @@ loadStoreSettings();
         }
 
         async function processCheckout(e) {
-            e.preventDefault();
-            
-            const form = document.getElementById('checkoutForm');
-            const formData = new FormData(form);
-            
-            // Calculate totals
-            const subtotal = cart.reduce((sum, item) => sum + item.price, 0);
-            const processingFee = subtotal * processingFeePercent;
-            const total = subtotal + processingFee;
-            
-            // Format order data to match server expectations
-            const orderData = {
-                customer_name: formData.get('name'),
-                customer_contact: formData.get('email'),
-                player_id: formData.get('playerId'),
-                payment_method: formData.get('payment'),
-                notes: formData.get('notes'),
-                items: cart,
-                subtotal: subtotal,
-                processing_fee: processingFee,
-                total: total
-            };
-            
-            try {
-                // Submit order to API
-                await fetch(`${API_BASE}/orders`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(orderData)
-                });
-            } catch (error) {
-                console.log('Order submitted locally (API unavailable)');
-            }
-            
-            document.getElementById('checkoutModal').classList.remove('active');
-            document.getElementById('successMessage').classList.add('active');
-            cart = [];
-            updateCartUI();
-            setTimeout(() => {
-                document.getElementById('successMessage').classList.remove('active');
-            }, 3000);
-            document.getElementById('checkoutForm').reset();
+    e.preventDefault();
+    
+    const form = document.getElementById('checkoutForm');
+    const formData = new FormData(form);
+    
+    const name = formData.get('name');
+    const email = formData.get('email');
+    const phone = formData.get('phone') || formData.get('playerPhone') || '';
+    
+    const subtotal = cart.reduce((sum, item) => sum + item.price, 0);
+    const processingFee = subtotal * processingFeePercent;
+    const total = subtotal + processingFee;
+
+    try {
+        // Create Razorpay order
+        const orderRes = await fetch(`${API_BASE}/payment/create-order`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: total })
+        });
+        const orderData = await orderRes.json();
+        
+        if (!orderData.success) {
+            showToast('Payment failed to initialize!', 'error');
+            return;
         }
+
+        // Close checkout modal
+        document.getElementById('checkoutModal').classList.remove('active');
+
+        // Open Razorpay checkout
+        const options = {
+            key: 'rzp_test_SPa92Yb8wL0fZN',
+            amount: orderData.order.amount,
+            currency: 'INR',
+            name: 'Jeramz MLBB Store',
+            description: 'MLBB Account Purchase',
+            order_id: orderData.order.id,
+            handler: async function(response) {
+                // Verify payment
+                const verifyRes = await fetch(`${API_BASE}/payment/verify`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(response)
+                });
+                const verifyData = await verifyRes.json();
+
+                if (verifyData.success) {
+                    await placeOrder(name, email, phone, response.razorpay_payment_id, formData, subtotal, processingFee, total);
+                } else {
+                    showToast('Payment verification failed!');
+                }
+            },
+            prefill: { name, email, contact: phone },
+            theme: { color: '#6c5ce7' }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.open();
+
+    } catch (error) {
+        console.error('Checkout error:', error);
+        showToast('Something went wrong!');
+    }
+}
+
+async function placeOrder(name, email, phone, paymentId, formData, subtotal, processingFee, total) {
+    try {
+        const orderData = {
+            customer_name: name,
+            customer_contact: email,
+            player_id: formData.get('playerId'),
+            payment_method: 'razorpay',
+            payment_id: paymentId,
+            notes: formData.get('notes'),
+            items: cart,
+            subtotal: subtotal,
+            processing_fee: processingFee,
+            total: total
+        };
+
+        await fetch(`${API_BASE}/orders`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(orderData)
+        });
+
+        document.getElementById('successMessage').classList.add('active');
+        cart = [];
+        updateCartUI();
+        setTimeout(() => {
+            document.getElementById('successMessage').classList.remove('active');
+        }, 3000);
+        document.getElementById('checkoutForm').reset();
+
+    } catch (error) {
+        console.error('Order error:', error);
+        showToast('Order failed!');
+    }
+}
 
         function showToast(message) {
             const toast = document.getElementById('toast');
