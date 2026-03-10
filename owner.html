@@ -48,12 +48,13 @@
         }
 
         .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+}
 
         .logo {
             display: flex;
@@ -644,8 +645,15 @@
 /* Responsive */
     @media (max-width: 768px) {
     header {
-        padding: 0.6rem 3%;
-    }
+    padding: 0.6rem 3%;
+}
+
+.header-content {
+    justify-content: space-between;
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+}
 
     .logo {
         font-size: 0.9rem;
