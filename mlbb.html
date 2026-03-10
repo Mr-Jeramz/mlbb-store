@@ -1433,7 +1433,7 @@ loadStoreSettings();
                         <div class="product-details">
                             <span><i class="fas fa-chart-line"></i> ${product.winRate}% WR</span>
                         </div>
-                        <div class="product-price">$${product.price}</div>
+                        <div class="product-price">₹${product.price}</div>
                         <button class="btn-add-cart" onclick="addToCart(${product.id})">
                             <i class="fas fa-cart-plus"></i> Add to Cart
                         </button>
@@ -1519,7 +1519,7 @@ loadStoreSettings();
                     <div class="cart-item-info">
                         <div class="cart-item-title">${item.title}</div>
                         <div class="cart-item-rank">${tierName} | ${item.heroes} Heroes | ${item.skins} Skins</div>
-                        <div class="cart-item-price">$${item.price}</div>
+                        <div class="cart-item-price">₹${item.price}</div>
                     </div>
                     <button class="remove-item" onclick="removeFromCart(${item.id})">
                         <i class="fas fa-trash"></i>
@@ -1531,9 +1531,9 @@ loadStoreSettings();
             const processingFee = subtotal * processingFeePercent;
             const total = subtotal + processingFee;
             
-            document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
-            document.getElementById('processingFee').textContent = `$${processingFee.toFixed(2)}`;
-            document.getElementById('totalPrice').textContent = `$${total.toFixed(2)}`;
+            document.getElementById('subtotal').textContent = `₹${subtotal.toFixed(2)}`;
+            document.getElementById('processingFee').textContent = `₹${processingFee.toFixed(2)}`;
+            document.getElementById('totalPrice').textContent = `₹${total.toFixed(2)}`;
             
             cartTotal.style.display = 'block';
             checkoutBtn.style.display = 'block';
