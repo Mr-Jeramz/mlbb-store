@@ -73,7 +73,6 @@ exports.createOrder = async (req, res) => {
         res.status(500).json({ error: 'Failed to place order' });
     }
 };
-
 // Update order status
 exports.updateOrder = async (req, res) => {
     try {
@@ -111,14 +110,13 @@ exports.updateOrder = async (req, res) => {
             const customerEmail = order.customer_contact;
             const productId = order.items[0].id;
 
-            // Find available account
             const [accounts] = await pool.execute(
                 "SELECT * FROM accounts WHERE product_id = ? AND status = 'available' LIMIT 1",
                 [productId]
             );
 
             if (accounts.length === 0) {
-                console.log("❌ No available accounts for this product");
+                console.log("No available accounts");
                 return res.json({
                     message: "Order updated but no account available",
                     order
@@ -127,13 +125,11 @@ exports.updateOrder = async (req, res) => {
 
             const account = accounts[0];
 
-            // Mark account as sold
             await pool.execute(
                 "UPDATE accounts SET status = 'sold' WHERE id = ?",
                 [account.id]
             );
 
-            // Send credentials
             await sendAccountEmail(
                 customerEmail,
                 account.game_email,
@@ -143,7 +139,10 @@ exports.updateOrder = async (req, res) => {
 
         /* ---------------------------------- */
 
-        res.json({ message: "Order updated successfully", order });
+        res.json({
+            message: "Order updated successfully",
+            order
+        });
 
     } catch (err) {
 
@@ -152,104 +151,7 @@ exports.updateOrder = async (req, res) => {
 
     }
 };
-            // Get product id from purchased item
-            const productId = order.items[0].id;
 
-            // Find an available account
-            const [accounts] = await pool.execute(
-                "SELECT * FROM accounts WHERE product_id = ? AND status = 'available' LIMIT 1",
-                [productId]
-            );
-
-            if (accounts.length === 0) {
-                console.log("❌ No available accounts for this product");
-                return res.json({
-                    message: "Order updated but no account available to send",
-                    order
-                });
-            }
-
-            const account = accounts[0];
-
-            // Mark account as SOLD first (prevents double selling)
-            await pool.execute(
-                "UPDATE accounts SET status = 'sold' WHERE id = ?",
-                [account.id]
-            );
-
-            // Send account credentials to buyer
-            await sendAccountEmail(
-                customerEmail,
-                account.game_email,
-                account.game_password
-            );
-
-        }
-
-        /* ---------------------------------------------------------- */
-
-        res.json({ message: 'Order updated successfully', order });
-
-    } catch (err) {
-        console.error('Error updating order:', err);
-        res.status(500).json({ error: 'Failed to update order' });
-    }
-};
-
-        /* ---------------- SEND ACCOUNT EMAIL ---------------- */
-
-        if (status === "completed") {
-
-            const { sendAccountEmail } = require("../server");
-
-            const customerEmail = order.customer_contact;
-
-            // Get product id from order items
-            const productId = order.items[0].id;
-
-            // Find available account
-            const [accounts] = await pool.execute(
-                "SELECT * FROM accounts WHERE product_id = ? AND status = 'available' LIMIT 1",
-                [productId]
-            );
-
-            if (accounts.length === 0) {
-                console.log("❌ No available accounts for this product");
-                return res.json({
-                    message: "Order updated but no account available to send",
-                    order
-                });
-            }
-
-            const account = accounts[0];
-
-            const accountEmail = account.game_email;
-            const accountPassword = account.game_password;
-
-            // Send email
-            await sendAccountEmail(
-                customerEmail,
-                accountEmail,
-                accountPassword
-            );
-
-            // Mark account as sold
-            await pool.execute(
-                "UPDATE accounts SET status = 'sold' WHERE id = ?",
-                [account.id]
-            );
-
-        }
-
-        /* ---------------------------------------------------- */
-
-        res.json({ message: 'Order updated successfully', order });
-
-    } catch (err) {
-        console.error('Error updating order:', err);
-        res.status(500).json({ error: 'Failed to update order' });
-    }
-};
 // Delete order
 exports.deleteOrder = async (req, res) => {
     try {
