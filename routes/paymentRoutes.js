@@ -29,14 +29,17 @@ router.post('/verify', (req, res) => {
         if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
             return res.status(400).json({ success: false, message: 'Missing payment details' });
         }
+
+        const key_secret = 'X78UkjQzDCPGLogYi780CcuS';
         const sign = razorpay_order_id + '|' + razorpay_payment_id;
-        const secret = 'X78UkjQzDCPGLogYi780CcuS';
-        const expectedSign = crypto
-            .createHmac('sha256', secret)
-            .update(sign)
-            .toString('hex');
+        
+        const hmac = crypto.createHmac('sha256', key_secret);
+        hmac.update(sign);
+        const expectedSign = hmac.digest('hex');
+        
         console.log('Expected:', expectedSign);
         console.log('Received:', razorpay_signature);
+        
         if (razorpay_signature === expectedSign) {
             res.json({ success: true, message: 'Payment verified' });
         } else {
