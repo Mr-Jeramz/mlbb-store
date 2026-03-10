@@ -708,11 +708,13 @@
     }
 
     .main-content {
-        margin-left: 0 !important;
-        padding: 1rem;
-        width: 100%;
-        margin-top: 55px;
-    }
+    margin-left: 0 !important;
+    padding: 1rem;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-top: 55px;
+    flex: 1;
+}
 
     .page-header {
         flex-direction: column;
@@ -726,10 +728,11 @@
     }
 
     .stats-grid {
-        grid-template-columns: 1fr 1fr;
-        gap: 0.8rem;
-        margin-bottom: 1rem;
-    }
+    grid-template-columns: 1fr 1fr;
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+    width: 100%;
+}
 
     .stat-card {
         padding: 0.8rem;
@@ -858,8 +861,8 @@
 
 @media (max-width: 480px) {
     .stats-grid {
-        grid-template-columns: 1fr;
-    }
+    grid-template-columns: 1fr 1fr;
+}
 
     .logo span {
         display: none;
