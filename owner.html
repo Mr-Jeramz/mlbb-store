@@ -2001,13 +2001,20 @@ return;
 
 }
 
-tbody.innerHTML = accounts.map(acc => `
+const availableAccounts = accounts.filter(acc => acc.status === 'available');
+
+if(availableAccounts.length === 0){
+    tbody.innerHTML = `<tr><td colspan="5">No accounts in inventory</td></tr>`;
+    return;
+}
+
+tbody.innerHTML = availableAccounts.map(acc => `
 <tr>
 <td>${acc.id}</td>
 <td>${acc.product_id}</td>
 <td>${acc.game_email}</td>
 <td>${acc.game_password}</td>
-<td>${acc.status}</td>
+<td><span class="status-badge status-pending">${acc.status}</span></td>
 </tr>
 `).join("");
 
