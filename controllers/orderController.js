@@ -105,3 +105,84 @@ exports.createOrder = async (req, res) => {
         res.status(500).json({ error: 'Failed to place order' });
     }
 };
+// Update order status
+exports.updateOrder = async (req, res) => {
+    try {
+        const pool = req.app.locals.pool;
+        const { status } = req.body;
+
+        await pool.execute(
+            'UPDATE orders SET status = ? WHERE id = ?',
+            [status, req.params.id]
+        );
+
+        const [rows] = await pool.execute(
+            'SELECT * FROM orders WHERE id = ?',
+            [req.params.id]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({ error: 'Order not found' });
+        }
+
+        const order = rows[0];
+        order.items = typeof order.items === 'string'
+            ? JSON.parse(order.items)
+            : order.items;
+
+        if (status === "completed") {
+            const { sendAccountEmail } = require("../server");
+            const customerEmail = order.customer_contact;
+
+            for (const item of order.items) {
+                const productId = item.id;
+
+                const [accounts] = await pool.execute(
+                    "SELECT * FROM accounts WHERE product_id = ? AND status = 'available' LIMIT 1",
+                    [productId]
+                );
+
+                if (accounts.length > 0) {
+                    const account = accounts[0];
+                    await pool.execute(
+                        "UPDATE accounts SET status = 'sold' WHERE id = ?",
+                        [account.id]
+                    );
+                    await sendAccountEmail(
+                        customerEmail,
+                        account.game_email,
+                        account.game_password
+                    );
+                }
+
+                await pool.execute(
+                    "DELETE FROM products WHERE id = ?",
+                    [productId]
+                );
+            }
+        }
+
+        res.json({ message: "Order updated successfully", order });
+
+    } catch (err) {
+        console.error("Error updating order:", err);
+        res.status(500).json({ error: "Failed to update order" });
+    }
+};
+
+// Delete order
+exports.deleteOrder = async (req, res) => {
+    try {
+        const pool = req.app.locals.pool;
+        const [result] = await pool.execute('DELETE FROM orders WHERE id = ?', [req.params.id]);
+        
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Order not found' });
+        }
+        
+        res.json({ message: 'Order deleted successfully' });
+    } catch (err) {
+        console.error('Error deleting order:', err);
+        res.status(500).json({ error: 'Failed to delete order' });
+    }
+};
