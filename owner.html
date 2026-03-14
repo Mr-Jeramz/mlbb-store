@@ -1961,11 +1961,10 @@ async function handleProductSubmit(e) {
         }
         products.push(formData);
     }
-    renderProducts();
-    updateProductStats();
-    closeProductModal();
-    fetchAccounts();
+   closeProductModal();
     showToast('Account saved successfully!', 'success');
+    await fetchProducts();
+    await fetchAccounts();
 }
 
 // fetching account
