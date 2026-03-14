@@ -43,76 +43,28 @@ exports.createOrder = async (req, res) => {
     try {
         const pool = req.app.locals.pool;
         
-        const { customer_name, customer_contact, player_id, payment_method, notes, items, subtotal, processing_fee, total } = req.body;
+        const { customer_name, customer_contact, player_id, payment_method, notes, items, subtotal, processing_fee, total, payment_id } = req.body;
         const itemsJson = JSON.stringify(items);
+
+        // If paid via Razorpay, set status to completed immediately
+        const status = payment_id ? 'completed' : 'pending';
         
         const [result] = await pool.execute(
             'INSERT INTO orders (customer_name, customer_contact, player_id, payment_method, notes, items, subtotal, processing_fee, total, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            [customer_name, customer_contact, player_id, payment_method, notes, itemsJson, subtotal, processing_fee, total, 'pending']
-        );
-        
-        const newOrder = {
-            id: result.insertId,
-            customer_name,
-            customer_contact,
-            player_id,
-            payment_method,
-            notes,
-            items,
-            subtotal,
-            processing_fee,
-            total,
-            status: 'pending',
-            created_at: new Date().toISOString()
-        };
-        
-        res.status(201).json({ message: 'Order placed successfully', order: newOrder });
-    } catch (err) {
-        console.error('Error placing order:', err);
-        res.status(500).json({ error: 'Failed to place order' });
-    }
-};
-
-// Update order status
-exports.updateOrder = async (req, res) => {
-    try {
-        const pool = req.app.locals.pool;
-        const { status } = req.body;
-
-        // Update order status
-        await pool.execute(
-            'UPDATE orders SET status = ? WHERE id = ?',
-            [status, req.params.id]
+            [customer_name, customer_contact, player_id, payment_method, notes, itemsJson, subtotal, processing_fee, total, status]
         );
 
-        // Get updated order
-        const [rows] = await pool.execute(
-            'SELECT * FROM orders WHERE id = ?',
-            [req.params.id]
-        );
+        const orderId = result.insertId;
 
-        if (rows.length === 0) {
-            return res.status(404).json({ error: 'Order not found' });
-        }
-
-        const order = rows[0];
-        order.items = typeof order.items === 'string'
-            ? JSON.parse(order.items)
-            : order.items;
-
-        /* -------- ACCOUNT DELIVERY + PRODUCT REMOVAL -------- */
-
-        if (status === "completed") {
-
+        // If Razorpay payment, auto deliver account
+        if (payment_id) {
             const { sendAccountEmail } = require("../server");
+            const parsedItems = typeof items === 'string' ? JSON.parse(items) : items;
 
-            const customerEmail = order.customer_contact;
-
-            // Loop through all items in the order
-            for (const item of order.items) {
+            for (const item of parsedItems) {
                 const productId = item.id;
 
-                // Find available account for this product
+                // Find available account
                 const [accounts] = await pool.execute(
                     "SELECT * FROM accounts WHERE product_id = ? AND status = 'available' LIMIT 1",
                     [productId]
@@ -127,48 +79,29 @@ exports.updateOrder = async (req, res) => {
                         [account.id]
                     );
 
-                    // Send account credentials to customer
+                    // Send credentials to customer
                     await sendAccountEmail(
-                        customerEmail,
+                        customer_contact,
                         account.game_email,
                         account.game_password
                     );
                 }
 
-                // ✅ Delete the product from the store
+                // Delete product from store
                 await pool.execute(
                     "DELETE FROM products WHERE id = ?",
                     [productId]
                 );
             }
         }
-
-        /* ---------------------------------------------------- */
-
-        res.json({
-            message: "Order updated successfully",
-            order
+        
+        res.status(201).json({ 
+            message: 'Order placed successfully', 
+            order: { id: orderId, status }
         });
 
     } catch (err) {
-        console.error("Error updating order:", err);
-        res.status(500).json({ error: "Failed to update order" });
-    }
-};
-
-// Delete order
-exports.deleteOrder = async (req, res) => {
-    try {
-        const pool = req.app.locals.pool;
-        const [result] = await pool.execute('DELETE FROM orders WHERE id = ?', [req.params.id]);
-        
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ error: 'Order not found' });
-        }
-        
-        res.json({ message: 'Order deleted successfully' });
-    } catch (err) {
-        console.error('Error deleting order:', err);
-        res.status(500).json({ error: 'Failed to delete order' });
+        console.error('Error placing order:', err);
+        res.status(500).json({ error: 'Failed to place order' });
     }
 };
