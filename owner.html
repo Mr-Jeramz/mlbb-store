@@ -1659,13 +1659,9 @@ startOrderPolling();
                     skins: p.skins || 0,
                     winRate: p.win_rate || 0
                 }));
-            } catch (error) {
-                products = JSON.parse(localStorage.getItem('mlbb_products')) || [
-                    { id: 1, title: "Exclusive Diamond Account", rank: "exclusive", price: 150, heroes: 80, skins: 45, winRate: 72 },
-                    { id: 2, title: "Premium Glory Account", rank: "premium", price: 85, heroes: 55, skins: 28, winRate: 62 },
-                    { id: 3, title: "Collector Account", rank: "collector", price: 45, heroes: 40, skins: 18, winRate: 55 }
-                ];
-            }
+           } catch (error) {
+    products = [];
+}
             renderProducts();
             updateProductStats();
             populateProductDropdown();
@@ -1887,7 +1883,6 @@ function deleteProduct(id) {
         })
         .then(() => {
             products = products.filter(p => p.id !== id);
-            localStorage.setItem('mlbb_products', JSON.stringify(products));
             renderProducts();
             updateProductStats();
             fetchAccounts();
@@ -1966,8 +1961,6 @@ async function handleProductSubmit(e) {
         }
         products.push(formData);
     }
-
-    localStorage.setItem('mlbb_products', JSON.stringify(products));
     renderProducts();
     updateProductStats();
     closeProductModal();
