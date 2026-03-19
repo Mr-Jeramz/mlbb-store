@@ -86,14 +86,6 @@ exports.createOrder = async (req, res) => {
                         account.game_password
                     );
                 }
-
-                // Delete product from store
-                await pool.execute(
-                    "DELETE FROM products WHERE id = ?",
-                    [productId]
-                );
-            }
-        }
         
         res.status(201).json({ 
             message: 'Order placed successfully', 
@@ -154,14 +146,6 @@ exports.updateOrder = async (req, res) => {
                         account.game_password
                     );
                 }
-
-                await pool.execute(
-                    "DELETE FROM products WHERE id = ?",
-                    [productId]
-                );
-            }
-        }
-
         res.json({ message: "Order updated successfully", order });
 
     } catch (err) {
