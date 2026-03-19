@@ -34,3 +34,17 @@ exports.createAccount = async (req, res) => {
         res.status(500).json({ error: "Failed to add account" });
     }
 };
+// Delete account
+exports.deleteAccount = async (req, res) => {
+    try {
+        const pool = req.app.locals.pool;
+        const [result] = await pool.execute('DELETE FROM accounts WHERE id = ?', [req.params.id]);
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Account not found' });
+        }
+        res.json({ message: 'Account deleted successfully' });
+    } catch (err) {
+        console.error('Error deleting account:', err);
+        res.status(500).json({ error: 'Failed to delete account' });
+    }
+};
