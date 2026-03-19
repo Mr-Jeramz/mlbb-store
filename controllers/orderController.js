@@ -121,21 +121,24 @@ exports.updateOrder = async (req, res) => {
                     [productId]
                 );
 
-                if (accounts.length > 0) {
-                    const account = accounts[0];
-                    await pool.execute(
-                        "UPDATE accounts SET status = 'sold' WHERE id = ?",
-                        [account.id]
-                    );
-                    await sendAccountEmail(
-                        customerEmail,
-                        account.game_email,
-                        account.game_password
-                    );
-                }
-            }
-        }
-
+               if (accounts.length > 0) {
+    const account = accounts[0];
+    await pool.execute(
+        "UPDATE accounts SET status = 'sold' WHERE id = ?",
+        [account.id]
+    );
+    await sendAccountEmail(
+        customer_contact,
+        account.game_email,
+        account.game_password
+    );
+    // Delete product from store after sold
+    await pool.execute(
+        "DELETE FROM products WHERE id = ?",
+        [productId]
+    );
+}
+                
         res.json({ message: "Order updated successfully", order });
 
     } catch (err) {
