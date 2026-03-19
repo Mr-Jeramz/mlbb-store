@@ -1222,6 +1222,7 @@
                     <th>Email</th>
                     <th>Password</th>
                     <th>Status</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody id="accountsTableBody"></tbody>
@@ -1986,40 +1987,28 @@ console.error("Failed to load accounts", error);
 }
         //render account
 function renderAccounts(accounts){
+    const tbody = document.getElementById("accountsTableBody");
+    if(!tbody) return;
 
-const tbody = document.getElementById("accountsTableBody");
+    if(accounts.length === 0){
+        tbody.innerHTML = `<tr><td colspan="6">No accounts in inventory</td></tr>`;
+        return;
+    }
 
-if(!tbody) return;
-
-if(accounts.length === 0){
-
-tbody.innerHTML = `
-<tr>
-<td colspan="5">No accounts in inventory</td>
-</tr>
-`;
-
-return;
-
-}
-
-const availableAccounts = accounts.filter(acc => acc.status === 'available');
-
-if(availableAccounts.length === 0){
-    tbody.innerHTML = `<tr><td colspan="5">No accounts in inventory</td></tr>`;
-    return;
-}
-
-tbody.innerHTML = availableAccounts.map(acc => `
-<tr>
-<td>${acc.id}</td>
-<td>${acc.product_id}</td>
-<td>${acc.game_email}</td>
-<td>${acc.game_password}</td>
-<td><span class="status-badge status-pending">${acc.status}</span></td>
-</tr>
-`).join("");
-
+    tbody.innerHTML = accounts.map(acc => `
+        <tr>
+            <td>${acc.id}</td>
+            <td>${acc.product_id}</td>
+            <td>${acc.game_email}</td>
+            <td>${acc.game_password}</td>
+            <td><span class="status-badge ${acc.status === 'sold' ? 'status-completed' : 'status-pending'}">${acc.status}</span></td>
+            <td>
+                <button class="btn-action btn-delete" onclick="deleteAccount(${acc.id})">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        </tr>
+    `).join("");
 }
         // Order Modal
         function viewOrder(id) {
@@ -2078,6 +2067,19 @@ tbody.innerHTML = availableAccounts.map(acc => `
             closeOrderModal();
             showToast('Order status updated!', 'success');
         }
+
+        //Delete Accounts
+        async function deleteAccount(id) {
+    if (confirm('Are you sure you want to delete this account?')) {
+        try {
+            await fetch(`${API_BASE}/accounts/${id}`, { method: 'DELETE' });
+            showToast('Account deleted!', 'success');
+            fetchAccounts();
+        } catch (error) {
+            showToast('Failed to delete!', 'error');
+        }
+    }
+}
 
         // Image handling
       function previewProductImage(event) {
