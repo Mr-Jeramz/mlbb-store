@@ -961,15 +961,14 @@
 }
             
             /* Notification Toast */
-          .notification-toast {
+  /* Notification Toast */
+.notification-toast {
     position: fixed;
     top: 80px;
     right: 20px;
-    left: auto;
-    width: 300px;
-    padding: 1rem 1.5rem;
     background: linear-gradient(135deg, var(--primary), var(--primary-dark));
     color: white;
+    padding: 1rem 1.5rem;
     border-radius: 10px;
     display: flex;
     align-items: center;
@@ -977,9 +976,10 @@
     z-index: 5000;
     transform: translateX(400px);
     transition: transform 0.3s ease;
+    max-width: 300px;
+    box-shadow: 0 10px 30px rgba(108, 92, 231, 0.4);
     opacity: 0;
     pointer-events: none;
-    box-shadow: 0 10px 30px rgba(108, 92, 231, 0.4);
 }
 
 .notification-toast.active {
@@ -987,18 +987,21 @@
     opacity: 1;
     pointer-events: auto;
 }
-            
-            .notification-toast i {
-                font-size: 1.2rem;
-            }
-            
-            .notification-toast .notification-title {
-                font-size: 0.85rem;
-            }
-            
-            .notification-toast .notification-text {
-                font-size: 0.75rem;
-            }
+
+.notification-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.notification-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.notification-text {
+    font-size: 0.8rem;
+    opacity: 0.9;
+}
             
             /* Chart Container */
             .chart-container {
