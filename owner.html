@@ -942,18 +942,23 @@
             }
             
             /* Toast */
-            .toast {
-                left: 10px;
-                right: 10px;
-                bottom: 10px;
-                padding: 0.8rem 1rem;
-                font-size: 0.85rem;
-                transform: translateY(100px);
-            }
-            
-            .toast.active {
-                transform: translateY(0);
-            }
+           /* Toast */
+.toast {
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    padding: 0.8rem 1rem;
+    font-size: 0.85rem;
+    transform: translateY(100px);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.toast.active {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+}
             
             /* Notification Toast */
             .notification-toast {
