@@ -1622,7 +1622,7 @@
     </div>
 
     <!-- Notification Toast -->
-    <div class="notification-toast" id="notificationToast">
+    <div class="notification-toast" id="notificationToast" style="display: none;">
         <i class="fas fa-shopping-cart"></i>
         <div class="notification-content">
             <span class="notification-title" id="notificationTitle">New Order!</span>
@@ -2351,13 +2351,11 @@ function renderAccounts(accounts){
             document.getElementById('notificationTitle').textContent = '🔔 New Order Received!';
             document.getElementById('notificationText').textContent = `${order.customer_name || 'Customer'} - $${parseFloat(order.total || 0).toFixed(2)}`;
             
-            notificationToast.classList.add('active');
+           notificationToast.style.display = 'flex';
+setTimeout(() => {
+    notificationToast.style.display = 'none';
+}, 5000);
             
-            // Auto-hide after 5 seconds
-            setTimeout(() => {
-                notificationToast.classList.remove('active');
-            }, 5000);
-
             // Also show a toast
             showToast('New order received!', 'success');
         }
