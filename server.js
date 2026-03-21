@@ -120,31 +120,7 @@ async function createTables() {
 /* ---------------- SEED DATA ---------------- */
 
 async function seedSampleData() {
-    const [rows] = await pool.execute("SELECT COUNT(*) as count FROM products");
-
-    if (rows[0].count === 0) {
-        console.log("🌱 Seeding sample products");
-
-        const products = [
-            { name:"Exclusive Diamond Account", price:150, rank:"exclusive", heroes:80, skins:45, win_rate:72 },
-            { name:"Exclusive Elite Account", price:120, rank:"exclusive", heroes:65, skins:35, win_rate:68 },
-            { name:"Premium Glory Account", price:85, rank:"premium", heroes:55, skins:28, win_rate:62 },
-            { name:"Premium Top Player", price:65, rank:"premium", heroes:50, skins:22, win_rate:58 },
-            { name:"Collector Edition Account", price:45, rank:"collector", heroes:40, skins:18, win_rate:55 },
-            { name:"Collector Account", price:35, rank:"collector", heroes:35, skins:15, win_rate:52 },
-            { name:"Basic Starter Account", price:15, rank:"basic", heroes:25, skins:8, win_rate:48 },
-            { name:"Basic Account", price:10, rank:"basic", heroes:20, skins:5, win_rate:45 }
-        ];
-
-        for (const p of products) {
-            await pool.execute(
-                "INSERT INTO products (name, price, `rank`, heroes, skins, win_rate) VALUES (?, ?, ?, ?, ?, ?)",
-                [p.name, p.price, p.rank, p.heroes, p.skins, p.win_rate]
-            );
-        }
-
-        console.log("✅ Sample products added");
-    }
+    console.log("🌱 No seeding - add products from owner dashboard!");
 }
 
 /* ---------------- MIDDLEWARE ---------------- */
